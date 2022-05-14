@@ -112,7 +112,7 @@ app.layout = html.Div(
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="btcVolume"), html.P("24 Hour Trading Volume")],
+                                    [html.H6(id="btcVolume"), html.P("24 Hour Trading Volume (Thousands)")],
                                     id="volume",
                                     className="mini_container",
                                 ),
