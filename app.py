@@ -5,7 +5,7 @@ import copy
 import pathlib
 import dash
 import math
-from datetime import datetime
+from datetime import date
 import plotly.express as px
 import pandas as pd
 from dash.dependencies import Input, Output, State, ClientsideFunction
@@ -23,7 +23,7 @@ DATA_PATH = PATH.joinpath("data").resolve()
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],
 )
-app.title = "Bitcoin Blockchain Visualizer"
+app.title = "Election Watch"
 server = app.server
 #cache = Cache(app.server, config={
 #    # try 'filesystem' if you don't want to setup redis
@@ -43,10 +43,17 @@ layout = dict(
     title="Transaction Graph",
 )
 
-def get_latest_block_height():
-    return get_url(LATEST_BLOCK)
+def days_to_election():
+    
+    f_date = date.today()
+    l_date = date(2022, 8, 9)
+    if l_date < f_date:
+        return 0
+    else:
+        delta = l_date - f_date
+        return delta.days
 
-highest_block = get_latest_block_height()
+    
 
 # Create app layout
 app.layout = html.Div(
@@ -58,15 +65,15 @@ app.layout = html.Div(
             [
                 html.Div(
                     [
-                        html.Img(
-                            src=app.get_asset_url("nau-logo.png"),
-                            id="plotly-image",
-                            style={
-                                "height": "60px",
-                                "width": "auto",
-                                "margin-bottom": "25px",
-                            },
-                        )
+                        #html.Img(
+                        #    src=app.get_asset_url("nau-logo.png"),
+                        #    id="plotly-image",
+                        #    style={
+                        #        "height": "60px",
+                        #        "width": "auto",
+                        #        "margin-bottom": "25px",
+                        #    },
+                        #)
                     ],
                     className="one-third column",
                 ),
@@ -75,12 +82,12 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.H3(
-                                    "Bitcoin Blockchain Explorer",
+                                    "Election Watch Kenya 2022",
                                     style={"margin-bottom": "0px"},
                                 ),
-                                html.H5(
-                                    "PLD 450 Project", style={"margin-top": "0px"}
-                                ),
+                                #html.H5(
+                                #    "PLD 450 Project", style={"margin-top": "0px"}
+                                #),
                             ]
                         )
                     ],
@@ -107,20 +114,14 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [html.H6(id="btcPrice"), html.P("Spot Price")],
+                                    [html.H6(id="daysLeft"), html.P("Days Left Till Election")],
                                     id="price",
                                     className="mini_container",
+                                    style ={
+                                        #'margin':'auto'
+                                    }
                                 ),
-                                html.Div(
-                                    [html.H6(id="btcVolume"), html.P("24 Hour Trading Volume (Thousands)")],
-                                    id="volume",
-                                    className="mini_container",
-                                ),
-                                html.Div(
-                                    [html.H6(id="btc24Hour"), html.P("24 Hour Price")],
-                                    id="price24",
-                                    className="mini_container",
-                                ),
+                             
                             ],
                             id="info-container",
                             className="row container-display",
@@ -137,24 +138,22 @@ app.layout = html.Div(
             [
                 html.Div(
                     [
-                        html.P(
-                            "Block to plot:",
+                        html.Img(
+                            src=app.get_asset_url("Uhuru_Kenyatta.jpg"),
                             className="control_label",
                         ),
                         html.Div(
                             [
-                            dcc.Input(
-                                placeholder='Enter block height...',
-                                type='text',
-                                value='',
+                            html.H3(
+                                "Uhuru Kenyatta",
                                 id="begin-block-height"
                             )
                             ,
-                            html.Div(id='begin-block-number')
+                            html.H4("Test Party", id='begin-block-number')
                             ]
 
-                        ),
-                        html.Button('Plot Transactions', id='graph-button', n_clicks=0),
+                        )
+                        
 
 
                     ],
@@ -174,12 +173,81 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div(
-                    [html.H3("Monthly BTC Market Capitaliztion"),
+                    [
+                        html.Img(
+                            src=app.get_asset_url("Uhuru_Kenyatta.jpg"),
+                            className="control_label",
+                        ),
+                        html.Div(
+                            [
+                            html.H3(
+                                "Uhuru Kenyatta",
+                                id="begin-block-height2"
+                            )
+                            ,
+                            html.H4("Test Party", id='begin-block-number2')
+                            ]
+
+                        )
+
+
+                    ],
+                    className="pretty_container four columns",
+                    id="cross-filter-options2",
+                ),
+                
+                
+                html.Div(
+                    [dcc.Graph(id="main_graph2")],
+                    className="pretty_container twelve columns",
+                ),
+                
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Img(
+                            src=app.get_asset_url("Uhuru_Kenyatta.jpg"),
+                            className="control_label",
+                        ),
+                        html.Div(
+                            [
+                            html.H3(
+                                "Uhuru Kenyatta",
+                                id="begin-block-height3"
+                            )
+                            ,
+                            html.H4("Test Party", id='begin-block-number3')
+                            ]
+
+                        )
+
+                    ],
+                    className="pretty_container four columns",
+                    id="cross-filter-options3",
+                ),
+                
+                
+                html.Div(
+                    [dcc.Graph(id="main_graph3")],
+                    className="pretty_container twelve columns",
+                ),
+                
+            ],
+            className="row flex-display",
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [html.H3("Hourly Candidate Sentiment"),
                         dcc.Graph(id="cap_graph")],
                     className="pretty_container six columns",
                 ),
                 html.Div(
-                    [html.H3("Monthly BTC Trading Volume"),
+                    [html.H3("Monthly Candidate Sentiment"),
                     dcc.Graph(id="volume_graph")],
                     className="pretty_container six columns",
                 ),
@@ -235,17 +303,13 @@ def load_chart_data(_):
 
 
 @app.callback(
-    [
-        Output("btcPrice", "children"),
-        Output("btcVolume", "children"),
-        Output("btc24Hour", "children"),
-    ],
+    Output("daysLeft", "children")
+    ,
     # Dummy input
     [Input(component_id="title", component_property="children")],
 )
-def load_btc_now_data(_):
-    btc_now = get_url(BTC_LINK)
-    return "$" + str(round(btc_now["last_trade_price"],2)), "$" + str(round(btc_now["volume_24h"],2)), "$" + str(round(btc_now["price_24h"],2))
+def load_days_left(_):
+    return days_to_election()
     
 @app.callback(
     Output('main_graph', 'figure'),
