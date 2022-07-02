@@ -12,11 +12,13 @@ import pandas as pd
 from dash.dependencies import Input, Output, State, ClientsideFunction
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objects as go
 
 
-from static import *
-from graphing import build_block_tx_graph, _plot_graph
+from settings import *
 from utils import get_url
+from datetime import datetime, timedelta
+
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("data").resolve()
@@ -24,6 +26,43 @@ DATA_PATH = PATH.joinpath("data").resolve()
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],
 )
+
+app.index_string = '''<!DOCTYPE html>
+<html>
+<head>
+<title>My app title</title>
+<link rel="manifest" href="./assets/manifest.json" />
+{%metas%}
+{%favicon%}
+{%css%}
+</head>
+<script type="module">
+   import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+   const el = document.createElement('pwa-update');
+   document.body.appendChild(el);
+</script>
+<body>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', ()=> {
+      navigator
+      .serviceWorker
+      .register('./assets/sw.js')
+      .then(()=>console.log("Ready."))
+      .catch(()=>console.log("Err..."));
+    });
+  }
+</script>
+{%app_entry%}
+<footer>
+{%config%}
+{%scripts%}
+{%renderer%}
+</footer>
+</body>
+</html>
+'''
+
 app.title = "Election Watch"
 server = app.server
 #cache = Cache(app.server, config={
@@ -34,9 +73,9 @@ server = app.server
 
 
 layout = dict(
-    autosize=True,
-    automargin=True,
-    margin=dict(l=30, r=30, b=20, t=40),
+    #autosize=True,
+    #automargin=True,
+    #margin=dict(l=30, r=30, b=20, t=40),
     hovermode="closest",
     plot_bgcolor="#F9F9F9",
     paper_bgcolor="#F9F9F9",
@@ -94,180 +133,52 @@ app.layout = html.Div(
                     ],
                     className="one-half column",
                     id="title",
-                ),
-                html.Div(
-                    [
-                        
-                    ],
-                    className="one-third column",
-                    id="button",
-                ),
+                )
+                
             ],
             id="header",
             className="row flex-display",
             style={"margin-bottom": "25px"},
         ),
         html.Div(
-            [
-                
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                html.Div(
-                                    [html.H6(id="daysLeft"), html.P("Days Left Till Election")],
-                                    id="price",
-                                    className="mini_container",
-                                    style ={
-                                        #'margin':'auto'
-                                    }
-                                ),
-                             
-                            ],
-                            id="info-container",
-                            className="row container-display",
-                        ),
-                       
-                    ],
-                    id="right-column",
-                    className="eight columns",
-                ),
-            ],
-            className="row flex-display",
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Img(
-                            src=app.get_asset_url("Uhuru_Kenyatta.jpg"),
-                            className="control_label",
-                        ),
-                        html.Div(
-                            [
-                            html.H3(
-                                "Uhuru Kenyatta",
-                                id="begin-block-height"
-                            )
-                            ,
-                            html.H4("Test Party", id='begin-block-number')
-                            ]
-
-                        )
-                        
-
-
-                    ],
-                    className="pretty_container four columns",
-                    id="cross-filter-options",
-                ),
-                
-                
-                html.Div(
-                    [dcc.Graph(id="main_graph")],
-                    className="pretty_container twelve columns",
-                ),
-                
-            ],
-            className="row flex-display",
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Img(
-                            src=app.get_asset_url("Uhuru_Kenyatta.jpg"),
-                            className="control_label",
-                        ),
-                        html.Div(
-                            [
-                            html.H3(
-                                "Uhuru Kenyatta",
-                                id="begin-block-height2"
-                            )
-                            ,
-                            html.H4("Test Party", id='begin-block-number2')
-                            ]
-
-                        )
-
-
-                    ],
-                    className="pretty_container four columns",
-                    id="cross-filter-options2",
-                ),
-                
-                
-                html.Div(
-                    [dcc.Graph(id="main_graph2")],
-                    className="pretty_container twelve columns",
-                ),
-                
-            ],
-            className="row flex-display",
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Img(
-                            src=app.get_asset_url("Uhuru_Kenyatta.jpg"),
-                            className="control_label",
-                        ),
-                        html.Div(
-                            [
-                            html.H3(
-                                "Uhuru Kenyatta",
-                                id="begin-block-height3"
-                            )
-                            ,
-                            html.H4("Test Party", id='begin-block-number3')
-                            ]
-
-                        )
-
-                    ],
-                    className="pretty_container four columns",
-                    id="cross-filter-options3",
-                ),
-                
-                
-                html.Div(
-                    [dcc.Graph(id="main_graph3")],
-                    className="pretty_container twelve columns",
-                ),
-                
-            ],
-            className="row flex-display",
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [html.H3("Hourly Candidate Sentiment"),
-                        dcc.Graph(id="cap_graph")],
-                    className="pretty_container six columns",
-                ),
-                html.Div(
-                    [html.H3("Monthly Candidate Sentiment"),
-                    dcc.Graph(id="volume_graph")],
-                    className="pretty_container six columns",
-                ),
-            ],
-            className="row flex-display",
-        ),
-    ],
-    id="mainContainer",
-    style={"display": "flex", "flex-direction": "column"},
+            id="main_dashboard",
+            style={"display": "flex", "flex-direction": "column"},
+            className="row"
+        )
+    ]
 )
 
 
-def get_daily_sentiment_data():
-    requests.get()
-
-def get_hourly_sentiment_data():
+def get_sentiment_data(period, candidate_name, begin_date, end_date):
     
+    if period == "daily":
+        request_url = "http://0.0.0.0:8080" + DAILY_URL +  begin_date.strftime("%Y-%m-%d %H:%M") + "/" \
+            + end_date.strftime("%Y-%m-%d %H:%M") + "/" \
+            + candidate_name
+    elif period == "hourly":
+        request_url = "http://0.0.0.0:8080" + HOURLY_URL +  begin_date.strftime("%Y-%m-%d %H:%M") + "/" \
+            + end_date.strftime("%Y-%m-%d %H:%M") + "/" \
+            + candidate_name
+    else:
+        raise ValueError
 
-def get_latest_sentiment_data():
+    data_dict = get_url(request_url)
+    #import pdb;pdb.set_trace()
+    fig = go.Figure(data=go.Scatter(
+        x = data_dict["timestamps"],
+        y = data_dict["sentiments"],
+        mode='markers',
+        marker=dict(
+            size=16,
+            #color=np.random.randn(500), #set color equal to a variable
+            colorscale='Viridis', # one of plotly colorscales
+            showscale=False
+        )
+    ))
+
+    return fig
+
+
 
 
 def get_image(url_to_get):
@@ -276,45 +187,79 @@ def get_image(url_to_get):
         className="control_label",
                 )
 
+def get_sentiment_pie(sentiment_value):
+
+    fig = go.Figure(data=[go.Pie(labels=["Sentiment: "+sentiment_value , ""], values=[int(sentiment_value), 1000-int(sentiment_value)], hole=.3)]) 
+    fig.update_traces(showlegend=False, hoverinfo='label', textinfo='label', textfont_size=20,marker=dict(colors=["gold", "white"], line=dict(color='#000000', width=2)))
+    #fig.update_layout(height=425)
+
+    return fig
+
+
 @app.callback(
-    Output('main_dashboard'),
+    Output(component_id='main_dashboard',component_property="children" ),
      # Dummy input
     [Input(component_id="title", component_property="children")]
-)   
+)
+def generate_all_candidates(_):
+    candidates = get_url('http://0.0.0.0:8080/candidate/now')
+    html_candidates = []
+    for candidate in candidates:
+        candidate_div = generate_candidate(candidate["name"], candidate["sentiment"], candidate["party"], 0,candidate["image_path"])
+        html_candidates.append (candidate_div)
+    return html_candidates
 
-def generate_candidate(candidate_name, candidate_party, candidate_number,image_path):
+def generate_candidate(candidate_name, candidate_sentiment, candidate_party, candidate_number,image_path):
 
     return html.Div(
             [
-                html.Div(
-                    [
-                        get_image(image_path),
-                        html.Div(
-                            [
-                            html.H3(
-                                candidate_name,
-                                id="candidate-" + candidate_number + "-name"
-                            )
-                            ,
-                            html.H4(candidate_party), id='begin-block-number' + candidate_number)
-                            ]
+              
 
-                        )
-                        
-                    ],
-                    className="pretty_container four columns",
-                    #id="cross-filter-options",
-                ),
-                
-                
+                    
+                    html.Span(
+                        [
+                            get_image(image_path),
+                            html.Div(
+                                [
+                                html.H3(
+                                    candidate_name,
+                                    #id="candidate-" + candidate_number + "-name"
+                                )
+                                ,
+                                html.H4(candidate_party)#, id='begin-block-number' + candidate_number)
+                                ]
+                            )
+                            
+                        ],
+                        className="pretty_container four columns",
+                        #id="cross-filter-options",
+                    ),
+                    html.Div(
+                        [dcc.Graph(figure=get_sentiment_pie(candidate_sentiment))],
+                        className="pretty_container four columns",
+                    ),
+                    #html.Div(
+                    #    #[dcc.Graph(figure=get_sentiment_pie(candidate_sentiment))],
+                    #    className="two columns",
+                    #),
+            
                 html.Div(
-                    [dcc.Graph(id="main_graph")],
-                    className="pretty_container twelve columns",
+                    [html.H3("Hourly Candidate Sentiment"),
+                        dcc.Graph(figure=get_sentiment_data("hourly", candidate_name, datetime.now()-timedelta(hours=24),datetime.now() ))],
+                    className="pretty_container five columns",
                 ),
+                html.Div(
+                    [html.H3("Monthly Candidate Sentiment"),
+                    dcc.Graph(figure=get_sentiment_data("daily", candidate_name, datetime.now()-timedelta(days=30),datetime.now() ))],
+                    className="pretty_container five columns",
+                ),
+
+            #className="row",
+            ])
                 
-            ],
-            className="row flex-display",
-        )
+        
+
+        
     
 
 # Main
