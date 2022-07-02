@@ -13,7 +13,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 
-from static import *
+from settings import *
 from graphing import build_block_tx_graph, _plot_graph
 from utils import get_url
 # get relative data folder
