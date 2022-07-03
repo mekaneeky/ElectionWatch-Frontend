@@ -44,7 +44,7 @@ app.index_string = '''<!DOCTYPE html>
     window.addEventListener('load', ()=> {
       navigator
       .serviceWorker
-      .register('/assets/sw.js')
+      .register('./assets/sw.js')
       .then(()=>console.log("Ready."))
       .catch(()=>console.log("Err..."));
     });
