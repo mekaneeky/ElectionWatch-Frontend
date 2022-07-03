@@ -1,7 +1,7 @@
 {
 "name": "ElectionWatchKe",
 "short_name": "ElectionWatchKe",
-"start_url": "http://3.137.108.220/assets",
+"start_url": "https://3.137.108.220/assets",
 "display": "standalone",
 "description": "Monitoring the Kenyan elections of August 2022",
 "lang": "eng",
@@ -41,7 +41,7 @@
 "shortcuts": [
     {
         "name":"ElectionWatchKe",
-        "url":"http://3.137.108.220/assets",
+        "url":"https://3.137.108.220/assets",
         "description":"A description of the functionality of this shortcut"
     }
 ]
