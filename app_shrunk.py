@@ -27,7 +27,7 @@ app = dash.Dash(
 app.index_string = '''<!DOCTYPE html>
 <html>
 <head>
-<title>ElecetionWatchKe</title>
+<title>ElectionWatchKe</title>
 <link rel="manifest" href="./assets/manifest.json" />
 {%metas%}
 {%favicon%}
