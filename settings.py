@@ -1,3 +1,5 @@
 HOURLY_URL = "/candidate/hourly/"
 DAILY_URL = "/candidate/daily/"
 REALTIME_URL = "/candidate/now/"
+URL_BASE = "backend_api"
+PORT = "8000"

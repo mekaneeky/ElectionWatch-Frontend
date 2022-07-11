@@ -4,8 +4,6 @@ import dash
 import math
 import requests
 from datetime import date
-import plotly.express as px
-import pandas as pd
 from dash.dependencies import Input, Output, State, ClientsideFunction
 from dash import dcc
 from dash import html
@@ -149,11 +147,11 @@ app.layout = html.Div(
 def get_sentiment_data(period, candidate_name, begin_date, end_date):
     
     if period == "daily":
-        request_url = "http://0.0.0.0:8080" + DAILY_URL +  begin_date.strftime("%Y-%m-%d %H:%M") + "/" \
+        request_url = BASE_URL + PORT + DAILY_URL +  begin_date.strftime("%Y-%m-%d %H:%M") + "/" \
             + end_date.strftime("%Y-%m-%d %H:%M") + "/" \
             + candidate_name
     elif period == "hourly":
-        request_url = "http://0.0.0.0:8080" + HOURLY_URL +  begin_date.strftime("%Y-%m-%d %H:%M") + "/" \
+        request_url = BASE_URL + PORT + HOURLY_URL +  begin_date.strftime("%Y-%m-%d %H:%M") + "/" \
             + end_date.strftime("%Y-%m-%d %H:%M") + "/" \
             + candidate_name
     else:
