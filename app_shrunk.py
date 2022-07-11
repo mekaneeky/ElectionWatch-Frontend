@@ -197,7 +197,7 @@ def get_sentiment_pie(sentiment_value):
     [Input(component_id="title", component_property="children")]
 )
 def generate_all_candidates(_):
-    candidates = get_url('http://0.0.0.0:8080/candidate/now')
+    candidates = get_url('http://0.0.0.0:8000/candidate/now')
     html_candidates = []
     for candidate in candidates:
         candidate_div = generate_candidate(candidate["name"], candidate["sentiment"], candidate["party"], 0,candidate["image_path"])
