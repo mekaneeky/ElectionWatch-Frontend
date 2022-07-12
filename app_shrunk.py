@@ -172,6 +172,10 @@ def get_sentiment_data(period, candidate_name, begin_date, end_date):
         )
     ))
 
+    fig.update_layout(
+    margin=dict(l=5, r=5, t=5, b=5),
+    )
+
     return fig
 
 
@@ -181,14 +185,29 @@ def get_image(url_to_get):
     return html.Img(
         src=app.get_asset_url(url_to_get),
         className="control_label",
+        style={"height":"80%", "width":"80%", "margin":"auto"}
                 )
 
-def get_sentiment_pie(sentiment_value):
+def get_sentiment_pie(candidate_name, sentiment_value):
 
-    fig = go.Figure(data=[go.Pie(labels=["Sentiment: "+sentiment_value , ""], values=[int(sentiment_value), 1000-int(sentiment_value)], hole=.3)]) 
-    fig.update_traces(showlegend=False, hoverinfo='label', textinfo='label', textfont_size=20,marker=dict(colors=["gold", "white"], line=dict(color='#000000', width=2)))
-    #fig.update_layout(height=425)
 
+
+
+    fig = go.Figure(data=[go.Bar(
+            x=[candidate_name, "max"], y=[sentiment_value, 100],
+            text=[sentiment_value, "max"],
+            textposition='auto',
+        )])
+
+    fig.update_layout(
+    margin=dict(l=5, r=5, t=5, b=5),
+    )
+
+    """
+        fig = go.Figure(data=[go.Pie(labels=["Sentiment: "+sentiment_value , ""], values=[int(sentiment_value), 1000-int(sentiment_value)], hole=.3)]) 
+        fig.update_traces(showlegend=False, hoverinfo='label', textinfo='label', textfont_size=20,marker=dict(colors=["gold", "white"], line=dict(color='#000000', width=2)))
+        #fig.update_layout(height=425)
+    """
     return fig
 
 
@@ -231,23 +250,23 @@ def generate_candidate(candidate_name, candidate_sentiment, candidate_party, can
                         #id="cross-filter-options",
                     ),
                     html.Div(
-                        [dcc.Graph(figure=get_sentiment_pie(candidate_sentiment))],
-                        className="pretty_container four columns",
+                        [dcc.Graph(figure=get_sentiment_pie(candidate_name,candidate_sentiment))],
+                        className="pretty_container three columns",
                     ),
                     #html.Div(
                     #    #[dcc.Graph(figure=get_sentiment_pie(candidate_sentiment))],
                     #    className="two columns",
                     #),
             
-                html.Div(
-                    [html.H3("Hourly Candidate Sentiment"),
-                        dcc.Graph(figure=get_sentiment_data("hourly", candidate_name, datetime.now()-timedelta(hours=24),datetime.now() ))],
-                    className="pretty_container five columns",
-                ),
+                #html.Div(
+                    #[#html.H3("Hourly Candidate Sentiment"),
+                     #   dcc.Graph(figure=get_sentiment_data("hourly", candidate_name, datetime.now()-timedelta(hours=24),datetime.now() ))],
+                    #className="pretty_container five columns",
+                #),
                 html.Div(
                     [html.H3("Monthly Candidate Sentiment"),
                     dcc.Graph(figure=get_sentiment_data("daily", candidate_name, datetime.now()-timedelta(days=30),datetime.now() ))],
-                    className="pretty_container five columns",
+                    className="pretty_container four columns",
                 ),
 
             #className="row",
