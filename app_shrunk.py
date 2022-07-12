@@ -18,11 +18,12 @@ from datetime import datetime, timedelta
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("data").resolve()
 
+
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],
 )
 
-app.index_string = '''<!DOCTYPE html>
+"""app.index_string = '''<!DOCTYPE html>
 <html>
 <head>
 <title>ElectionWatchKe</title>
@@ -57,7 +58,7 @@ app.index_string = '''<!DOCTYPE html>
 </body>
 </html>
 '''
-
+"""
 app.title = "Election Watch"
 server = app.server
 #cache = Cache(app.server, config={
@@ -259,4 +260,4 @@ def generate_candidate(candidate_name, candidate_sentiment, candidate_party, can
 
 # Main
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(host="0.0.0.0",debug=True)
