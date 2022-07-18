@@ -8,6 +8,7 @@ from dash.dependencies import Input, Output, State, ClientsideFunction
 from dash import dcc
 from dash import html
 import plotly.graph_objects as go
+import dash_bootstrap_components as dbc
 
 
 from settings import *
@@ -21,6 +22,7 @@ DATA_PATH = PATH.joinpath("data").resolve()
 
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],
+    external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
 
 """app.index_string = '''<!DOCTYPE html>
@@ -79,6 +81,19 @@ layout = dict(
     title="Transaction Graph",
 )
 
+
+navbar = dbc.NavbarSimple(
+    children=[
+        dbc.NavItem(dbc.NavLink("Candidate Sentiment", href="/")),
+        dbc.NavItem(dbc.NavLink("Bot Influence", href="/bot-influence")),
+    ],
+    brand="ElectionWatch",
+    brand_href="/",
+    color="grey",
+    dark=True,
+)
+
+
 def days_to_election():
     
     f_date = date.today()
@@ -97,6 +112,7 @@ app.layout = html.Div(
         dcc.Store(id="aggregate_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output-clientside"),
+        navbar,
         html.Div(
             [
                 html.Div(
