@@ -22,8 +22,8 @@ DATA_PATH = PATH.joinpath("data").resolve()
 
 
 app = dash.Dash(
-    __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],
-    external_stylesheets=[dbc.themes.BOOTSTRAP]
+    __name__, meta_tags=[{"name": "viewport", "content": "width=100%"}],
+#    external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
 
 app.title = "Election Watch"
@@ -35,23 +35,14 @@ layout = dict(
     #automargin=True,
     #margin=dict(l=30, r=30, b=20, t=40),
     hovermode="closest",
-    plot_bgcolor="#F9F9F9",
-    paper_bgcolor="#F9F9F9",
+    plot_bgcolor="#FFFFFF",
+    paper_bgcolor="#FFFFFF",
     legend=dict(font=dict(size=10), orientation="h"),
-    title="Transaction Graph",
+    title="",
 )
 
 
-navbar = dbc.NavbarSimple(
-    children=[
-        dbc.NavItem(dbc.NavLink("Candidate Sentiment", href="/")),
-        dbc.NavItem(dbc.NavLink("Bot Influence", href="/bot-influence")),
-    ],
-    brand="ElectionWatch",
-    brand_href="/",
-    color="grey",
-    dark=True,
-)
+
 
 
 def days_to_election():
@@ -67,31 +58,26 @@ def days_to_election():
     
 
 # Create app layout
-app.layout = html.Div(
+app.layout = html.Span(
     [
         dcc.Location(id='url', refresh=False),
-        html.Div(
-            [dcc.Graph(id="main_graph")],
-            id="main_dashboard",
-            style={"display": "flex", "flex-direction": "column"},
-            className="row"
-        )
-    ]
+        dcc.Graph(id="main_graph", style={'width': '105%', 'height': '350px', 'margin-left': -8, 'margin-top':-33})
+    ],
+            id="main_dashboard"    
 )
 
 
 def get_sentiment_scatter(period,data_type, candidate_name, begin_date, end_date):
    
     request_url = BASE_URL + PORT + f"/{data_type}/{period}/" +  begin_date.strftime("%Y-%m-%d %H:%M") + "/"  + end_date.strftime("%Y-%m-%d %H:%M") + "/"  + candidate_name  
-
-    data_dict = get_url(request_url)
     #import pdb;pdb.set_trace()
+    data_dict = get_url(request_url)
     fig = go.Figure(data=go.Scatter(
         x = data_dict["timestamps"],
         y = data_dict["values"],
         mode='markers',
         marker=dict(
-            size=16,
+            size=10,
             #color=np.random.randn(500), #set color equal to a variable
             colorscale='Viridis', # one of plotly colorscales
             showscale=False
@@ -99,7 +85,7 @@ def get_sentiment_scatter(period,data_type, candidate_name, begin_date, end_date
     ))
 
     fig.update_layout(
-    margin=dict(l=5, r=5, t=5, b=5),
+    margin=dict(l=0, r=0, t=0, b=0),
     )
 
     return fig
@@ -114,17 +100,26 @@ def get_image(url_to_get):
         style={"height":"80%", "width":"80%", "margin":"auto"}
                 )
 
-def get_sentiment_pie(candidate_name, sentiment_value):
+def get_sentiment_pie(count_label, count_value, sum_label, sum_value ):
 
     fig = go.Figure(data=[go.Bar(
-            x=[candidate_name, "max"], y=[sentiment_value, 100],
-            text=[sentiment_value, "max"],
+            x=[count_label, sum_label], y=[count_value, sum_value],
+            text=[count_label, sum_label],
             textposition='auto',
         )])
 
     fig.update_layout(
-    margin=dict(l=5, r=5, t=5, b=5),
+    margin=dict(l=0, r=0, t=0, b=0),
+    xaxis=dict(
+        autorange=True,
+        showgrid=False,
+        ticks='',
+        showticklabels=False
     )
+
+    )
+
+
 
     return fig
 
@@ -150,9 +145,12 @@ def conditional_load(href: str):
     html_candidates = []
     
     if chart_type == "pie":
-        request_url = BASE_URL + PORT + f"/{data_type}/now/" + candidate_name          
-        sentiment = get_url(request_url)[0]["values"]
-        return get_sentiment_pie(candidate_name, sentiment)
+        request_url = BASE_URL + PORT + f"/{data_type}/now/" + candidate_name
+        count_val, sum_val = get_url(request_url)
+        if data_type == "sentiment":
+            return get_sentiment_pie( "Posts Analyzed",count_val, "Total Sentiment" ,sum_val)
+        else:
+            return get_sentiment_pie( "Total Users Analyzed",count_val, "Total Bots Suspected" ,sum_val)
 
     if chart_type == "scatter":
         #period,data_type, candidate_name, begin_date, end_date
@@ -161,9 +159,12 @@ def conditional_load(href: str):
         else:
            delta = timedelta(hours=24)
 
+        
         now = datetime.now()
         prev_datetime = now - delta
-        return get_sentiment_scatter(chart_duration,data_type , candidate_name, now, prev_datetime)
+        #import pdb;pdb.set_trace()
+        
+        return get_sentiment_scatter(chart_duration,data_type , candidate_name, prev_datetime, now )
 
 
 
