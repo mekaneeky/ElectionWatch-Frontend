@@ -13,8 +13,8 @@ ENV twitter_api_var=$twitter_api_token
 RUN --mount=type=cache,target=/root/.cache/pip pip -q install -r requirements.txt
 
 # define the port number the container should expose
-EXPOSE 80
+EXPOSE 8050
 
 # run the command
-CMD ["gunicorn"  , "--bind", "0.0.0.0:80", "app_shrunk:server"]
+CMD ["gunicorn"  , "--bind", "0.0.0.0:8050", "app_multi:server"]
 
